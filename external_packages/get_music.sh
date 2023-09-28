@@ -16,7 +16,7 @@
 folderName="music"
 # download the code package
 rm -fr $folderName
-git clone --depth=1 https://github.com/MUSIC-fluid/MUSIC.git --branch JETSCAPE $folderName
+git clone --depth=1 https://github.com/USPHydro/MUSIC.git --branch JETSCAPE $folderName
 
 ### ALTERNATIVE VERSION
 ### Download a zipped snapshot
