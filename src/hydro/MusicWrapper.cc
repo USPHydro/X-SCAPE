@@ -161,6 +161,30 @@ void MpiMusic::InitializeHydro(Parameter parameter_list) {
     exit(1);
   }
 
+  double eps_fo = GetXMLElementDouble(
+          {"Hydro", "MUSIC", "freeze_out_energy"});
+  music_hydro_ptr->set_parameter("eps_switch",eps_fo);
+
+  int turn_on_dif =  GetXMLElementInt(
+          {"Hydro", "MUSIC", "turn_on_baryon_diffusion"});
+  music_hydro_ptr->set_parameter("turn_on_baryon_diffusion", turn_on_dif);
+
+  double kappa =  GetXMLElementDouble(
+          {"Hydro", "MUSIC", "kappa_coefficient"});
+  music_hydro_ptr->set_parameter("kappa_coefficient", kappa);
+  
+  int rhob_on =  GetXMLElementInt(
+          {"Hydro", "MUSIC", "include_rhob"});
+  music_hydro_ptr->set_parameter("Include_Rhob_Yes_1_No_0", rhob_on);
+  
+  int boost_on =  GetXMLElementInt(
+          {"Hydro", "MUSIC", "boost_invariant"});
+  music_hydro_ptr->set_parameter("boost_invariant", boost_on);
+
+  int eos = GetXMLElementInt(
+          {"Hydro", "MUSIC", "eos_to_use"});
+  music_hydro_ptr->set_parameter("EOS_to_use", eos);
+  music_hydro_ptr->set_parameter("shear_relax_time_factor", 4.65);
   music_hydro_ptr->add_hydro_source_terms(hydro_source_terms_ptr);
 }
 
@@ -168,10 +192,27 @@ void MpiMusic::EvolveHydro() {
   VERBOSE(8);
   JSINFO << "Initialize density profiles in MUSIC ...";
   std::vector<double> entropy_density = ini->GetEntropyDensityDistribution();
-  double dx = ini->GetXStep();
-  double dz = ini->GetZStep();
-  double z_max = ini->GetZMax();
-  int nz = ini->GetZSize();
+  double dx;
+  double dz;
+  double z_max;
+  int nz;
+  if (pre_eq_ptr->using_ampt == true){
+    JSINFO << "Using AMPTGenesis parameters to overwrite grid dimensions";
+    dx = pre_eq_ptr->dx_fs;
+    dz = pre_eq_ptr->deta_fs;
+    z_max = pre_eq_ptr->etamax_fs - dz;
+    nz = pre_eq_ptr->neta_fs;
+    JSINFO << "AMPT neta=  " << nz;
+
+  }
+  else{
+  JSINFO << "Using IS module grid size";
+  dx = ini->GetXStep();
+  dz = ini->GetZStep();
+  z_max = ini->GetZMax();
+  nz = ini->GetZSize();
+  }
+  JSINFO << "Initial condition nz = " << nz;
 
   // need further improvement to accept multiple source term objects
   music_hydro_ptr->generate_hydro_source_terms();
@@ -180,14 +221,15 @@ void MpiMusic::EvolveHydro() {
     JSWARN << "Missing the pre-equilibrium module ...";
     music_hydro_ptr->initialize_hydro();
   } else {
+    JSINFO << "Initializing MUSIC from preequilibrium vectors" ;
     music_hydro_ptr->initialize_hydro_from_jetscape_preequilibrium_vectors(
         dx, dz, z_max, nz, pre_eq_ptr->e_, pre_eq_ptr->P_,
         pre_eq_ptr->utau_, pre_eq_ptr->ux_, pre_eq_ptr->uy_, pre_eq_ptr->ueta_,
         pre_eq_ptr->pi00_, pre_eq_ptr->pi01_, pre_eq_ptr->pi02_,
         pre_eq_ptr->pi03_, pre_eq_ptr->pi11_, pre_eq_ptr->pi12_,
         pre_eq_ptr->pi13_, pre_eq_ptr->pi22_, pre_eq_ptr->pi23_,
-        pre_eq_ptr->pi33_, pre_eq_ptr->bulk_Pi_);
-  }
+        pre_eq_ptr->pi33_, pre_eq_ptr->bulk_Pi_, pre_eq_ptr->tau_hydro_,
+        pre_eq_ptr->rho_b_,pre_eq_ptr->q0_,pre_eq_ptr->q1_,pre_eq_ptr->q2_,pre_eq_ptr->q3_);
 
   JSINFO << "initial density profile dx = " << dx << " fm";
   hydro_status = INITIALIZED;
@@ -274,6 +316,7 @@ void MpiMusic::SetHydroGridInfo() {
   bulk_info.deta = music_hydro_ptr->get_hydro_deta();
 
   bulk_info.boost_invariant = music_hydro_ptr->is_boost_invariant();
+  JSINFO <<"Is boost invariant? : " << music_hydro_ptr->is_boost_invariant();
 }
 
 void MpiMusic::PassHydroEvolutionHistoryToFramework() {

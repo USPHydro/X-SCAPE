@@ -7,7 +7,7 @@ cmake_policy(SET CMP0042 NEW)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "./lib")
 
 # framework
-FILE(GLOB frameworksources framework/*.cc)
+FILE(GLOB frameworksources framework/*.cc root/*.cc )
 set (SOURCES  ${SOURCES}  ${frameworksources} )
 
 ## Take care of options
@@ -16,6 +16,9 @@ set (SOURCES  ${SOURCES}  ${frameworksources} )
 #   list (REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/src/framework/JetScapeWriterAsciiGZ.cc)
 # endif()
 
+if (NOT "${ROOT_FOUND}")
+  list (REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/src/framework/JetScapeWriterRootHepMC.cc)
+endif()
 if(NOT "${HEPMC_FOUND}")
   list (REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/src/framework/JetScapeWriterHepMC.cc)
 endif()

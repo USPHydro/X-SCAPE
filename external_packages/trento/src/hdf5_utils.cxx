@@ -9,6 +9,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <array>
 namespace trento {
 
 namespace hdf5 {
@@ -17,10 +18,13 @@ bool filename_is_hdf5(const fs::path& path) {
   if (!path.has_extension())
     return false;
 
-  auto hdf5_exts = {".hdf5", ".hdf", ".hd5", ".h5"};
-  auto result = std::find(hdf5_exts.begin(), hdf5_exts.end(), path.extension());
-
-  return result != hdf5_exts.end();
+  std::array<char *,4> hdf5_exts = {".hdf5", ".hdf", ".hd5", ".h5"};
+  for (const auto& ext : hdf5_exts) {
+    if (path.extension() == ext) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool filename_is_hdf5(const std::string& path) {

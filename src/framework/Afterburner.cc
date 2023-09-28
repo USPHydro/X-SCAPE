@@ -82,8 +82,17 @@ std::vector<shared_ptr<Hadron>> Afterburner::GetFragmentationHadrons() {
 
 std::vector<std::vector<std::shared_ptr<Hadron>>> Afterburner::GatherAfterburnerHadrons() {
   std::vector<std::vector<shared_ptr<Hadron>>> afterburner_had_events;
-  afterburner_had_events = GetSoftParticlizationHadrons();
-
+  std::vector<std::vector<shared_ptr<Hadron>>> afterburner_had_events_temp;
+  afterburner_had_events_temp = GetSoftParticlizationHadrons();
+  int ievt = 0;
+  for (auto had_event_temp : afterburner_had_events_temp) {
+    std::vector<shared_ptr<Hadron>> had_event;
+    for (auto had : had_event_temp) {
+      if (had->pstat() == 11) had_event.push_back(had);
+    }
+    if (had_event.size() > 0) afterburner_had_events.push_back(had_event);
+    ievt++;
+  }
   if (GetXMLElementInt({"Afterburner", "output_only_final_state_hadrons"})) {
     // clear Hadron_list_ in soft_particlization, otherwise the final hadron 
     // output of the writer contains also the soft hadrons which were used as 

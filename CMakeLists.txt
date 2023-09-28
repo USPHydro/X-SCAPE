@@ -50,6 +50,12 @@ if (USE_3DGlauber)
   link_directories(./external_packages/3dMCGlauber/LHAPDF_Lib/lib)
 endif (USE_3DGlauber)
 
+option(USE_AMPT "Build tests for AMPTGenesis" ON)
+if (USE_AMPT)
+  message("Includes for AMPTGenesis ...")
+  include_directories(./external_packages/AMPTGenesis/src)
+endif (USE_AMPT)
+
 # CLVisc. Trun on with 'cmake -DUSE_CLVISC=ON'.
 find_package(OpenCL)
 
@@ -190,6 +196,8 @@ install(
   "${CMAKE_SOURCE_DIR}/external_packages/clvisc_wrapper/"
   "${CMAKE_SOURCE_DIR}/external_packages/smash/src/"
   "${CMAKE_SOURCE_DIR}/external_packages/googletest/googletest/src/"
+  # AMPT
+  "${CMAKE_SOURCE_DIR}/external_packages/AMPTGenesis/src"
   DESTINATION "include" # target directory
   FILES_MATCHING # install only matched files
   PATTERN "*.h*" # select header files
@@ -255,6 +263,7 @@ install(
   "${PROJECT_BINARY_DIR}/external_packages/music/src/"
   "${PROJECT_BINARY_DIR}/external_packages/trento/src/"
   "${PROJECT_BINARY_DIR}/external_packages/clvisc_wrapper/"
+  "${PROJECT_BINARY_DIR}/external_packages/AMPTGenesis/src"
   DESTINATION "lib" # target directory
   FILES_MATCHING # install only matched files
   PATTERN "lib*.*" # selects .so, .a, .dylib, ...
@@ -313,6 +322,7 @@ if (USE_ROOT)
     set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DUSE_ROOT" )
     Message(STATUS "ROOT Include dir : " ${ROOT_INCLUDE_DIRS})
     Message(STATUS "ROOT Libraries : " ${ROOT_LIBRARIES})
+    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DUSE_ROOT" )
   endif()
 endif(USE_ROOT)
 
@@ -344,6 +354,7 @@ include_directories(./src/hadronization )
 include_directories(./src/afterburner )
 include_directories(./src/jet )
 include_directories(./src/reader )
+include_directories(./src/root )
 include_directories(./external_packages/)
 include_directories(./external_packages/gtl/include )
 include_directories(./external_packages/hydro_from_external_file )
@@ -364,6 +375,17 @@ endif(USE_ROOT)
 add_subdirectory(./external_packages)
 add_subdirectory(./external_packages/gtl)
 add_subdirectory(./src)
+
+if (USE_AMPT)
+  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external_packages/AMPTGenesis")
+    message(FATAL_ERROR "Error: AMPTGenesis source has not been found")
+  endif()
+  message("Building AMPTGenesis ...")
+  add_subdirectory(./external_packages/AMPTGenesis)
+
+  target_compile_definitions(JetScape PRIVATE USE_AMPT)
+endif (USE_AMPT)
+
 
 if (unittests)
     add_subdirectory(./examples/unittests/)
@@ -520,10 +542,13 @@ if ( USE_MUSIC AND USE_ISS AND USE_SMASH )
 endif ( USE_MUSIC AND USE_ISS AND USE_SMASH )
 
 if (USE_ROOT)
-  #if (${ROOT_FOUND})
-  #  add_executable(PythiaBrickTestRoot ./examples/custom_examples/PythiaBrickTestRoot.cc)
-  #  target_link_libraries(PythiaBrickTestRoot JetScape)
-  #endif(${ROOT_FOUND})
+  if (${ROOT_FOUND})
+    target_link_libraries(runJetscape JetScapeRoot)
+    add_executable(PythiaBrickTestRoot ./examples/custom_examples/PythiaBrickTestRoot.cc)
+    target_link_libraries(PythiaBrickTestRoot JetScape JetScapeRoot)
+    target_link_libraries(runJetscape ROOT::Eve)
+    target_link_libraries(runJetscape  ${ROOT_LIBRARIES})
+  endif(${ROOT_FOUND})
 endif(USE_ROOT)
 
 

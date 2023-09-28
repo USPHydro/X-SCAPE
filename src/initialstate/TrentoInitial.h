@@ -23,6 +23,8 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/program_options.hpp>
 
+#include "H5Cpp.h"
+
 #include "fwd_decl.h"
 #include "JetScapeModuleBase.h"
 #include "collider.h"
@@ -31,6 +33,7 @@
 
 using OptDesc = po::options_description;
 using VarMap = po::variables_map;
+using namespace H5;
 using namespace trento;
 
 namespace Jetscape {
@@ -44,6 +47,32 @@ typedef struct {
   std::map<int, double> psi; // order, participant_plane
   double xmid, ymid;
 } EventInfo;
+
+
+////////////////////////// Trento Initial Condition Results ////////////////////
+#define NMAX 6
+#define MMAX 6
+typedef struct{
+    double b;                       // impact parameter [fm]
+    int Npart;                      // number of participants
+    int Ncoll;                      // number of collisions
+    double E;                       // Total energy [GeV]
+    double S;                       // Total entropy (as compued via ideal gas EOS)
+    double S_hotQCD;                // Total entropy (as compued via hotQCD EOS)
+    double E_entropy;               // Total energy (assumes trento output is in entropy density and use ideal EOS to get energy density)
+    double re_ecc_p;                // Real part of mom. anisotropy computed with ideal gas EOS
+    double im_ecc_p;                // Imag part of mom. anisotropy computed with ideal gas EOS
+    double re_ecc_p_hotQCD;         // Real part of mom. anisotropy computed with hotQCD EOS
+    double im_ecc_p_hotQCD;         // Imag part of mom. anisotropy computed with hotQCD EOS
+    double re_ecc_p_prime;          // Real part of mom. anisotropy computed with ideal gas EOS - ideal hydro contribution only
+    double im_ecc_p_prime;          // Imag part of mom. anisotropy computed with ideal gas EOS - ideal hydro contribution only
+    double re_ecc_p_prime_hotQCD;   // Real part of mom. anisotropy computed with hotQCD EOS - ideal hydro contribution only
+    double im_ecc_p_prime_hotQCD;   // Imag part of mom. anisotropy computed with hotQCD EOS - ideal hydro contribution only
+    double R[NMAX];                 // <R^n>^{1/n} (n=1,..,NMAX)
+    double eps[NMAX][MMAX+1];       // <eps_{n,m}> (n=1,..,NMAX, m=0,..,MMAX)
+    double psi[NMAX][MMAX+1];       // <psi_{n,m}> (n=1,..,NMAX, m=0,..,MMAX)
+} trento_event_info;
+
 
 /**The output data format (from http://qcd.phy.duke.edu/trento/usage.html#output-options):
  * The grid will always be a square N × N array, with N = ceil(2*max/step).
@@ -63,7 +92,23 @@ public:
   void InitTask();
   void ExecuteTask();
   void ClearTask();
+  void WriteToHDF5();
 
+  //Auxiliary functions to output to HDF5
+  trento_event_info get_ecc(const std::vector<double> &eps,
+                                    const  std::vector<double> &u0,
+                                    const  std::vector<double> &ux,
+                                    const  std::vector<double> &uy,
+                                    const  std::vector<double> &Pi,
+                                    const  std::vector<double> &pixx,
+                                    const  std::vector<double> &piyy,
+                                    const  std::vector<double> &pitautau,
+                                    const  std::vector<double> &pixy,
+                                    const  double &tau,
+                                    const  std::array<int,2> &size, const std::array<double,2> &step);
+  void output_hdf5(std::string filename,
+                   std::vector<trento_event_info>& evt_vec,
+                   std::vector<double>& entropy_density_distribution);
 
   struct RangeFailure : public std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -79,6 +124,7 @@ private:
 
   // Allows the registration of the module so that it is available to be used by the Jetscape framework.
   static RegisterJetScapeModule<TrentoInitial> reg;
+  int event_counter;
 };
 
 } // end namespace Jetscape
