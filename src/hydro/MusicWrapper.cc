@@ -230,6 +230,7 @@ void MpiMusic::EvolveHydro() {
         pre_eq_ptr->pi13_, pre_eq_ptr->pi22_, pre_eq_ptr->pi23_,
         pre_eq_ptr->pi33_, pre_eq_ptr->bulk_Pi_, pre_eq_ptr->tau_hydro_,
         pre_eq_ptr->rho_b_,pre_eq_ptr->q0_,pre_eq_ptr->q1_,pre_eq_ptr->q2_,pre_eq_ptr->q3_);
+  }
 
   JSINFO << "initial density profile dx = " << dx << " fm";
   hydro_status = INITIALIZED;
