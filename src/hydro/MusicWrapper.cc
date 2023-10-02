@@ -104,8 +104,8 @@ void MpiMusic::InitializeHydro(Parameter parameter_list) {
     music_hydro_ptr->set_parameter("T_dependent_Shear_to_S_ratio", flag_shear_Tdep);
     if (flag_shear_Tdep == 3) {
       double shear_kinkT = (
-        GetXMLElementDouble({"Hydro", "MUSIC", "shear_viscosity_3_at_kink"}));
-      music_hydro_ptr->set_parameter("shear_viscosity_3_at_kink", shear_kinkT);
+        GetXMLElementDouble({"Hydro", "MUSIC", "shear_viscosity_3_T_kink_in_GeV"}));
+      music_hydro_ptr->set_parameter("shear_viscosity_3_T_kink_in_GeV", shear_kinkT);
       double shear_lowTslope = (
         GetXMLElementDouble({"Hydro", "MUSIC",
                              "shear_viscosity_3_low_T_slope_in_GeV"}));
