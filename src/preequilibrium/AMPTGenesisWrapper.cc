@@ -99,7 +99,7 @@ void AMPTGenesisWrapper::EvolvePreequilibrium() {
   genesis_ptr->output_to_vectors(e_, P_, utau_, ux_, uy_, ueta_, pi00_, pi01_,
                                  pi02_, pi03_, pi11_, pi12_, pi13_, pi22_,
                                  pi23_, pi33_, bulk_Pi_,tau_hydro_,rho_b_,q0_,q1_,q2_,q3_);
-    std::cout << " Match time ... " << genesis_ptr->tau0<< std::endl;
+    std::cout << " Match time ... " << genesis_ptr->tau_hydro_<< std::endl;
     std::cout << "nx from wrapper : " << e_.size()/genesis_ptr->neta << std::endl;
 }
 
