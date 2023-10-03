@@ -63,6 +63,7 @@ private:
   // record preequilibrium start and end proper time [fm/c]
   real preequilibrium_tau_0_, preequilibrium_tau_max_;
   int event_counter;
+  std::string output_filename_;
 
   void WriteToHDF5();
 
