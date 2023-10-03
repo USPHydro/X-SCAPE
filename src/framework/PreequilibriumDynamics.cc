@@ -70,6 +70,8 @@ void PreequilibriumDynamics::ExecuteTask() {
   }
 
   EvolvePreequilibrium();
+  output_filename_ = GetXMLElementText({"Preequilibrium", "OutputFile"},false);
+  if (output_filename_ != "") 
   WriteToHDF5();
 }
 

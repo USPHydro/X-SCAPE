@@ -23,7 +23,7 @@ index 9ace33c..d66a56c 100644
    if (fileIn == NULL)
    {
 diff --git src/FreestreamMilne.cpp src/FreestreamMilne.cpp
-index a891efb..f35e67a 100644
+index a891efb..450f46d 100644
 --- src/FreestreamMilne.cpp
 +++ src/FreestreamMilne.cpp
 @@ -34,6 +34,10 @@ class FREESTREAMMILNE {
@@ -80,11 +80,10 @@ index a891efb..f35e67a 100644
    energy_density_out = final_energy_density;
    pressure_out = final_pressure;
    ut_out = final_ut;
-@@ -133,17 +155,18 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
+@@ -133,17 +155,17 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
    piyn_out = final_piyn;
    pinn_out = final_pinn;
    Pi_out = final_Pi;
-+  tau0_out = final_tau;
 +  tau0_out = final_tau;
 +  rho_out = final_rhob;
 +  q0_out = final_q0;
@@ -107,7 +106,7 @@ index a891efb..f35e67a 100644
  
  //set default parameters in case of missing freestream_input file
  params.OUTPUTFORMAT = 2;
-@@ -172,7 +195,18 @@ params.VISCOUS_MATCHING = 1;
+@@ -172,7 +194,18 @@ params.VISCOUS_MATCHING = 1;
  params.E_DEP_FS = 0;
  
  //read in chosen parameters from freestream_input if such a file exists
@@ -127,7 +126,7 @@ index a891efb..f35e67a 100644
  
  //define some useful combinations
  params.DIM = params.DIM_X * params.DIM_Y * params.DIM_ETA;
- @@ -669,6 +703,11 @@ final_piyy.resize(params.DIM);
+@@ -669,6 +702,11 @@ final_piyy.resize(params.DIM);
  final_piyn.resize(params.DIM);
  final_pinn.resize(params.DIM);
  final_Pi.resize(params.DIM);
@@ -136,10 +135,11 @@ index a891efb..f35e67a 100644
 +final_q1.resize(params.DIM);
 +final_q2.resize(params.DIM);
 +final_q3.resize(params.DIM);
-
+ 
  if ( (params.OUTPUTFORMAT == 2) || (params.OUTPUTFORMAT == 3) )
  {
-@@ -693,6 +731,13 @@ if ( (params.OUTPUTFORMAT == 2) || (params.OUTPUTFORMAT == 3) )
+@@ -692,7 +730,13 @@ if ( (params.OUTPUTFORMAT == 2) || (params.OUTPUTFORMAT == 3) )
+     final_piyn[is] = (double)shearTensor[8][is] * hbarc;
      final_pinn[is] = (double)shearTensor[9][is] * hbarc;
      final_Pi[is] = (double)bulkPressure[is] * hbarc;
 +    final_rhob[is] = 0.0;
