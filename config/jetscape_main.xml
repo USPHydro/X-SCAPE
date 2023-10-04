@@ -313,11 +313,11 @@
       <string_source_sigma_x>0.5</string_source_sigma_x>
       <string_source_sigma_eta>0.5</string_source_sigma_eta>
       <stringPreEqFlowFactor>0.13</stringPreEqFlowFactor>
-      <freeze_out_energy>-1</freeze_out_energy>
-      <turn_on_baryon_diffusion>1</turn_on_baryon_diffusion>
+      <freeze_out_energy>0</freeze_out_energy>
+      <turn_on_baryon_diffusion>0</turn_on_baryon_diffusion>
       <kappa_coefficient>0</kappa_coefficient>
       <include_rhob>0</include_rhob>
-      <boost_invariant>false</boost_invariant>
+      <boost_invariant>true</boost_invariant>
       <eos_to_use>91</eos_to_use>
     </MUSIC>
 

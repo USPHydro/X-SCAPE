@@ -163,7 +163,8 @@ void MpiMusic::InitializeHydro(Parameter parameter_list) {
 
   double eps_fo = GetXMLElementDouble(
           {"Hydro", "MUSIC", "freeze_out_energy"});
-  music_hydro_ptr->set_parameter("eps_switch",eps_fo);
+  if (eps_fo > 0.01){
+      music_hydro_ptr->set_parameter("eps_switch",eps_fo);}
 
   int turn_on_dif =  GetXMLElementInt(
           {"Hydro", "MUSIC", "turn_on_baryon_diffusion"});
