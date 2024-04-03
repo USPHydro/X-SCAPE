@@ -1,15 +1,8 @@
-Subject: [PATCH] External parameter control
-
----
- src/FileIO.cpp          |  6 ++----
- src/FreestreamMilne.cpp | 27 ++++++++++++++++++---------
- 2 files changed, 20 insertions(+), 13 deletions(-)
-
 diff --git src/FileIO.cpp src/FileIO.cpp
-index 58c6acf..d72db3c 100644
+index 9ace33c..d66a56c 100644
 --- src/FileIO.cpp
 +++ src/FileIO.cpp
-@@ -163,7 +163,7 @@ void readDensityFile(float *density, char name[255], parameters params)
+@@ -164,7 +164,7 @@ void readDensityFile(float *density, char name[255], parameters params)
    infile.close();
  }
  
@@ -18,7 +11,7 @@ index 58c6acf..d72db3c 100644
  {
    char dummyChar[255];
    int dummyInt;
-@@ -171,9 +171,7 @@ void readInParameters(struct parameters &params)
+@@ -172,9 +172,7 @@ void readInParameters(struct parameters &params)
    float dummyFloat;
  
    FILE *fileIn;
@@ -30,7 +23,7 @@ index 58c6acf..d72db3c 100644
    if (fileIn == NULL)
    {
 diff --git src/FreestreamMilne.cpp src/FreestreamMilne.cpp
-index 3bb12bc..7128164 100644
+index a891efb..450f46d 100644
 --- src/FreestreamMilne.cpp
 +++ src/FreestreamMilne.cpp
 @@ -34,6 +34,10 @@ class FREESTREAMMILNE {
@@ -44,8 +37,59 @@ index 3bb12bc..7128164 100644
      // IS THIS VARIABLE NECESSARY
      int gridSize; //the total number of grid points in x, y, and eta : used for vector memory allocation
  
-@@ -135,15 +139,9 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
+@@ -64,7 +68,13 @@ class FREESTREAMMILNE {
+                             std::vector<double>&, //piyy
+                             std::vector<double>&, //piyn
+                             std::vector<double>&, //pinn
+-                            std::vector<double>&); //Pi
++                            std::vector<double>&, //Pi
++                            double &,               //tau0
++                            std::vector<double>&, //rhob
++                            std::vector<double>&, //q0
++                            std::vector<double>&, //q1
++                            std::vector<double>&, //q2
++                            std::vector<double>& ); //q3    
+ 
+     std::vector<double> final_energy_density;
+     std::vector<double> final_pressure;
+@@ -83,6 +93,12 @@ class FREESTREAMMILNE {
+     std::vector<double> final_piyn;
+     std::vector<double> final_pinn;
+     std::vector<double> final_Pi;
++    double final_tau;
++    std::vector<double> final_rhob;
++    std::vector<double> final_q0;
++    std::vector<double> final_q1;
++    std::vector<double> final_q2;
++    std::vector<double> final_q3;
+ 
+ };
+ 
+@@ -115,7 +131,13 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
+                                         std::vector<double> &piyy_out,
+                                         std::vector<double> &piyn_out,
+                                         std::vector<double> &pinn_out,
+-                                        std::vector<double> &Pi_out) {
++                                        std::vector<double> &Pi_out,
++                                        double& tau0_out,
++                                        std::vector<double> &rho_out,
++                                        std::vector<double> &q0_out,
++                                        std::vector<double> &q1_out,
++                                        std::vector<double> &q2_out,
++                                        std::vector<double> &q3_out) {
+   energy_density_out = final_energy_density;
+   pressure_out = final_pressure;
+   ut_out = final_ut;
+@@ -133,17 +155,17 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
+   piyn_out = final_piyn;
+   pinn_out = final_pinn;
    Pi_out = final_Pi;
++  tau0_out = final_tau;
++  rho_out = final_rhob;
++  q0_out = final_q0;
++  q1_out = final_q1;
++  q2_out = final_q2;
++  q3_out = final_q3;
  }
  
 -//where the magic happens
@@ -62,7 +106,7 @@ index 3bb12bc..7128164 100644
  
  //set default parameters in case of missing freestream_input file
  params.OUTPUTFORMAT = 2;
-@@ -171,7 +169,18 @@ params.VISCOUS_MATCHING = 1;
+@@ -172,7 +194,18 @@ params.VISCOUS_MATCHING = 1;
  params.E_DEP_FS = 0;
  
  //read in chosen parameters from freestream_input if such a file exists
@@ -82,6 +126,29 @@ index 3bb12bc..7128164 100644
  
  //define some useful combinations
  params.DIM = params.DIM_X * params.DIM_Y * params.DIM_ETA;
--- 
-2.28.0
-
+@@ -669,6 +702,11 @@ final_piyy.resize(params.DIM);
+ final_piyn.resize(params.DIM);
+ final_pinn.resize(params.DIM);
+ final_Pi.resize(params.DIM);
++final_rhob.resize(params.DIM);
++final_q0.resize(params.DIM);
++final_q1.resize(params.DIM);
++final_q2.resize(params.DIM);
++final_q3.resize(params.DIM);
+ 
+ if ( (params.OUTPUTFORMAT == 2) || (params.OUTPUTFORMAT == 3) )
+ {
+@@ -692,7 +730,13 @@ if ( (params.OUTPUTFORMAT == 2) || (params.OUTPUTFORMAT == 3) )
+     final_piyn[is] = (double)shearTensor[8][is] * hbarc;
+     final_pinn[is] = (double)shearTensor[9][is] * hbarc;
+     final_Pi[is] = (double)bulkPressure[is] * hbarc;
++    final_rhob[is] = 0.0;
++    final_q0[is] = 0.0;
++    final_q1[is] = 0.0;
++    final_q2[is] = 0.0;
++    final_q3[is] = 0.0;
+   }
++  final_tau = params.TAU;
+ }
+ 
+ //free the memory

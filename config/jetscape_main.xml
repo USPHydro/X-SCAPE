@@ -80,6 +80,7 @@
             skew-type="1"
             jacobian="0.8">
     </LongiInputs>
+    <OutputFile>TrentoOutput.h5</OutputFile>
     </Trento>
 
     <!-- Options to read initial conditions from saved file  -->
@@ -211,6 +212,7 @@
     <!-- switching long. proper time from Preequilibrium dynamics to Hydrodynamics (Landau Matching) -->
     <taus>0.2</taus>
 
+    <OutputFile>PreequilibriumOutput.h5</OutputFile>
     <!-- Individual Preequilibrium Dynamics models  -->
     <FreestreamMilne>
       <name>FreestreamMilne</name>
@@ -218,6 +220,24 @@
     </FreestreamMilne>
 
     <NullPreDynamics> </NullPreDynamics>
+    <CustomModuleAMPTGenesis>
+      <name>CustomModuleAMPTGenesis</name>
+      <!-- Initial state folder path  -->
+      <freestream_input_file>ana</freestream_input_file>
+      <!-- Output file path  -->
+      <freestream_output_file>freestream_output</freestream_output_file>
+      <grid_points_x>121</grid_points_x>
+      <grid_points_y>121</grid_points_y>
+      <grid_points_eta>61</grid_points_eta>
+      <grid_size_x>24.0</grid_size_x>
+      <grid_size_y>24.0</grid_size_y>
+      <grid_size_eta>12.0</grid_size_eta>
+      <smearing_constant>0.9215</smearing_constant>
+      <smearing_sigma_r>0.3</smearing_sigma_r>
+      <smearing_sigma_eta>0.3</smearing_sigma_eta>
+      <sample_radius_xy>2.0</sample_radius_xy>
+      <sample_radius_eta>2.0</sample_radius_eta>
+    </CustomModuleAMPTGenesis>
 
   </Preequilibrium>
 
@@ -271,27 +291,34 @@
     <MUSIC>
       <name>MUSIC</name>
       <MUSIC_input_file>music_input</MUSIC_input_file>
-      <InitialProfile>13</InitialProfile>
+      <InitialProfile>42</InitialProfile>
       <beastMode>0</beastMode>
       <Initial_time_tau_0>0.5</Initial_time_tau_0>
       <output_evolution_to_file>0</output_evolution_to_file>
       <store_hydro_info_in_memory>0</store_hydro_info_in_memory>
       <shear_viscosity_eta_over_s>0.08</shear_viscosity_eta_over_s>
       <T_dependent_Shear_to_S_ratio>3</T_dependent_Shear_to_S_ratio>
-      <shear_viscosity_3_at_kink>0.16</shear_viscosity_3_at_kink>
+      <shear_viscosity_3_T_kink_in_GeV>0.16</shear_viscosity_3_T_kink_in_GeV>
       <shear_viscosity_3_low_T_slope_in_GeV>0</shear_viscosity_3_low_T_slope_in_GeV>
       <shear_viscosity_3_high_T_slope_in_GeV>0</shear_viscosity_3_high_T_slope_in_GeV>
+      <shear_viscosity_3_at_kink>0.08</shear_viscosity_3_at_kink>
       <temperature_dependent_bulk_viscosity>3</temperature_dependent_bulk_viscosity>
       <bulk_viscosity_3_max>0.06</bulk_viscosity_3_max>
-      <zeta_over_s_T_peak_in_GeV>0.17</zeta_over_s_T_peak_in_GeV>
-      <zeta_over_s_width_in_GeV>0.02</zeta_over_s_width_in_GeV>
-      <zeta_over_s_lambda_asymm>0.1</zeta_over_s_lambda_asymm>
+      <bulk_viscosity_3_T_peak_in_GeV>0.17</bulk_viscosity_3_T_peak_in_GeV>
+      <bulk_viscosity_3_width_in_GeV>0.02</bulk_viscosity_3_width_in_GeV>
+      <bulk_viscosity_3_lambda_asymm>0.1</bulk_viscosity_3_lambda_asymm>
       <Include_second_order_terms>1</Include_second_order_terms>
       <freezeout_temperature>0.3</freezeout_temperature>
       <Perform_CooperFrye_Feezeout>0</Perform_CooperFrye_Feezeout>
       <string_source_sigma_x>0.5</string_source_sigma_x>
       <string_source_sigma_eta>0.5</string_source_sigma_eta>
       <stringPreEqFlowFactor>0.13</stringPreEqFlowFactor>
+      <freeze_out_energy>0</freeze_out_energy>
+      <turn_on_baryon_diffusion>0</turn_on_baryon_diffusion>
+      <kappa_coefficient>0</kappa_coefficient>
+      <include_rhob>0</include_rhob>
+      <boost_invariant>true</boost_invariant>
+      <eos_to_use>91</eos_to_use>
     </MUSIC>
 
     <!-- CLVisc  -->
@@ -360,6 +387,21 @@
 
       <number_of_repeated_sampling>1</number_of_repeated_sampling>
       <Perform_resonance_decays>1</Perform_resonance_decays>
+
+      <turn_on_shear>1</turn_on_shear>
+      <turn_on_bulk>0</turn_on_bulk>
+      <turn_on_rhob>0</turn_on_rhob>
+      <turn_on_diff>0</turn_on_diff>
+      <include_deltaf_shear>1</include_deltaf_shear>
+      <include_deltaf_bulk>0</include_deltaf_bulk>
+      <bulk_deltaf_kind>1</bulk_deltaf_kind><!-- 0 : 14-moment approximation (s95p-v0-PCE) -->                    
+                                            <!-- 1 : relaxation time approximation [default]-->
+                                            <!-- 11: OSU 14-moment-->
+                                            <!-- 20: WSU 22-moment (NEoS-BQS) shear and bulk-->
+                                            <!-- 21: WSU Chapman-Enskog (NEoS-BQS) shear and bulk>-->
+      <include_deltaf_diffusion>0</include_deltaf_diffusion>
+      <restrict_deltaf>0</restrict_deltaf>
+      <MC_sampling>2</MC_sampling>
     </iSS>
   </SoftParticlization>
 

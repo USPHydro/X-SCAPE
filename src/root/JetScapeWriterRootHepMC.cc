@@ -64,6 +64,12 @@ void JetScapeWriterRootHepMC::WriteHeaderToFile() {
   // Should multiply all lengths by 1e-12 probably
   evt = GenEvent(Units::GEV, Units::MM);
 
+  //Create attributes
+  nsamples = make_shared<HepMC3::IntAttribute>();
+  nparticles = make_shared<HepMC3::VectorIntAttribute>();
+  evt.add_attribute("NSamples", nsamples);
+  evt.add_attribute("NParticles", nparticles);
+
   // Expects pb, pythia delivers mb
   auto xsec = make_shared<HepMC3::GenCrossSection>();
   xsec->set_cross_section(GetHeader().GetSigmaGen() * 1e9, 0);
@@ -74,12 +80,13 @@ void JetScapeWriterRootHepMC::WriteHeaderToFile() {
 
   auto heavyion = make_shared<HepMC3::GenHeavyIon>();
   // see https://gitlab.cern.ch/hepmc/HepMC3/blob/master/include/HepMC/GenHeavyIon.h
-  if (GetHeader().GetNpart() > -1) {
-    // Not clear what the difference is...
-    heavyion->Ncoll_hard = GetHeader().GetNcoll();
+  if (GetHeader().GetNcoll() > -1) {
+    // Ncoll_hard is the number of binary collisions for the hard process, not used
+    // in hydro calculations. Hence, we set it to 0
+    heavyion->Ncoll_hard = 0;
     heavyion->Ncoll = GetHeader().GetNcoll();
   }
-  if (GetHeader().GetNcoll() > -1) {
+  if (GetHeader().GetNpart() > -1) {
     // Hepmc separates into target and projectile.
     // Set one? Which? Both? half to each? setting projectile for now.
     // setting both might lead to weird problems when they get added up
@@ -289,6 +296,11 @@ void JetScapeWriterRootHepMC::Write(weak_ptr<PartonShower> ps) {
   }
 }
 
+void JetScapeWriterRootHepMC::SetAttributes(int &nsamples_in, std::vector<int> &nparticles_in){
+  nsamples->set_value(nsamples_in);
+  nparticles->set_value(nparticles_in);
+}
+
 void JetScapeWriterRootHepMC::Write(weak_ptr<Hadron> h) {
   auto hadron = h.lock();
   if (!hadron)
@@ -331,6 +343,7 @@ void JetScapeWriterRootHepMC::InitTask() {
     JSINFO << "JetScape HepMC Writer initialized with output file = "
            << GetOutputFileName();
   }
+  //Create auxiliary tree containin
 }
 
 void JetScapeWriterRootHepMC::ExecuteTask() {

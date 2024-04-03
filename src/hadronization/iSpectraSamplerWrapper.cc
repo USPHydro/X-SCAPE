@@ -50,8 +50,6 @@ void iSpectraSamplerWrapper::InitTask() {
       GetXMLElementInt({"SoftParticlization", "iSS", "hydro_mode"});
   int number_of_repeated_sampling = GetXMLElementInt(
       {"SoftParticlization", "iSS", "number_of_repeated_sampling"});
-  int flag_perform_decays = GetXMLElementInt(
-      {"SoftParticlization", "iSS", "Perform_resonance_decays"});
   int afterburner_type = (
       GetXMLElementInt({"SoftParticlization", "iSS", "afterburner_type"}));
 
@@ -65,34 +63,60 @@ void iSpectraSamplerWrapper::InitTask() {
 
   // overwrite some parameters
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("hydro_mode", hydro_mode);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("afterburner_type",
-                                            afterburner_type);
+  if (GetPerformDecays()) {
+    JSINFO << "iSS decays enabled. Overwriting afterburner_type to PDG Decays.";
+    iSpectraSampler_ptr_->paraRdr_ptr->setVal("perform_decays", 1);
+    iSpectraSampler_ptr_->paraRdr_ptr->setVal("afterburner_type", 0);
+  } else {
+    iSpectraSampler_ptr_->paraRdr_ptr->setVal("perform_decays", 0);
+    iSpectraSampler_ptr_->paraRdr_ptr->setVal("afterburner_type", afterburner_type);
+  }
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("output_samples_into_files", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_OSCAR_format", 0);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_OSCAR_format", 1);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_gzip_format", 0);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("store_samples_in_memory", 1);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("number_of_repeated_sampling",
                                             number_of_repeated_sampling);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("perform_decays",
-                                            flag_perform_decays);
 
   // set default parameters
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_shear", 1);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_bulk", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_rhob", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_diff", 0);
+  int turn_on_shear =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_shear"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_shear", turn_on_shear);
+  int turn_on_bulk =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_bulk"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_bulk", turn_on_bulk);
 
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_shear", 1);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_bulk", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("bulk_deltaf_kind", 1);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_diffusion", 0);
+  int turn_on_rhob =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_rhob"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_rhob", turn_on_rhob);
+  int turn_on_diff =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_diff"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_diff", turn_on_diff);
+  int include_deltaf_shear = 
+      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_shear"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_shear", include_deltaf_shear);
+  int include_deltaf_bulk = 
+      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_bulk"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_bulk", include_deltaf_bulk);
+  int bulk_deltaf_kind = 
+      GetXMLElementInt({"SoftParticlization", "iSS", "bulk_deltaf_kind"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("bulk_deltaf_kind", bulk_deltaf_kind);
 
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("restrict_deltaf", 0);
+  int include_deltaf_diffusion = 
+      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_diffusion"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_diffusion", include_deltaf_diffusion);
+
+  int restrict_deltaf = 
+      GetXMLElementInt({"SoftParticlization", "iSS", "restrict_deltaf"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("restrict_deltaf", restrict_deltaf);
+
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("deltaf_max_ratio", 1.0);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("f0_is_not_small", 1);
 
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("calculate_vn", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("MC_sampling", 4);
+  int MC_sampling = 
+      GetXMLElementInt({"SoftParticlization", "iSS", "MC_sampling"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("MC_sampling", MC_sampling);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_spectators", 0);
 
   iSpectraSampler_ptr_->paraRdr_ptr->setVal(
@@ -147,16 +171,19 @@ void iSpectraSamplerWrapper::PassHadronListToJetscape() {
   unsigned int nev = iSpectraSampler_ptr_->get_number_of_sampled_events();
   VERBOSE(2) << "Passing all sampled hadrons to the JETSCAPE framework";
   VERBOSE(4) << "number of events to pass : " << nev;
+  nsamples = nev;
+  nparticles_per_sample.resize(nev);
   for (unsigned int iev = 0; iev < nev; iev++) {
     std::vector<shared_ptr<Hadron>> hadrons;
     unsigned int nparticles =
         (iSpectraSampler_ptr_->get_number_of_particles(iev));
     VERBOSE(4) << "event " << iev << ": number of particles = " << nparticles;
+    nparticles_per_sample.push_back(nparticles);
     for (unsigned int ipart = 0; ipart < nparticles; ipart++) {
       iSS_Hadron current_hadron =
           (iSpectraSampler_ptr_->get_hadron(iev, ipart));
       int hadron_label = 0;
-      int hadron_status = 11;
+      int hadron_status = (GetPerformDecays() ? 12 : 11);
       int hadron_id = current_hadron.pid;
       //int hadron_id = 1;   // just for testing need to be changed to the line above
       double hadron_mass = current_hadron.mass;
@@ -187,6 +214,7 @@ void iSpectraSamplerWrapper::WriteTask(weak_ptr<JetScapeWriter> w) {
   if (!f)
     return;
 
+  f->SetAttributes(nsamples,nparticles_per_sample);
   f->WriteComment("JetScape module: " + GetId());
   if (Hadron_list_.size() > 0) {
     f->WriteComment("Final State Bulk Hadrons");
