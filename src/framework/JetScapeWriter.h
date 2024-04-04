@@ -54,6 +54,7 @@ public:
   virtual void WriteWhiteSpace(string s){};
   virtual void Write(ostream *o){};
   virtual void Write(weak_ptr<Hadron> h){};
+  virtual void SetAttributes(int &nsamples_in, std::vector<int> &nparticles_in){}; //Used only for HepMC3 Root Tree
 
   /// Gets called first, before all tasks write themselves
   virtual void WriteHeaderToFile(){};

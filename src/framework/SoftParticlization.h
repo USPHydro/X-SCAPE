@@ -67,6 +67,13 @@ public:
 
   bool boost_invariance;
   bool check_boost_invariance();
+
+  void SetPerformDecays(bool flag) { perform_decays = flag; };
+  bool GetPerformDecays() { return perform_decays; };
+
+  int nsamples; //< Number of samples in the event
+  std::vector<int> nparticles_per_sample; //< Number of particles in each sample
+
 };
 
 } // end namespace Jetscape

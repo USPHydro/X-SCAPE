@@ -21,9 +21,34 @@
 #include "JetScapeModuleBase.h"
 #include "RealType.h"
 
+#include "H5Cpp.h"
+
 namespace Jetscape {
 // Flags for preequilibrium dynamics status.
 enum PreequilibriumStatus { NOT_STARTED, INIT, DONE, ERR };
+
+#define NMAX 6
+#define MMAX 6
+typedef struct{
+    double b;                       // impact parameter [fm]
+    int Npart;                      // number of participants
+    int Ncoll;                      // number of collisions
+    double E;                       // Total energy [GeV]
+    double S;                       // Total entropy (as compued via ideal gas EOS)
+    double S_hotQCD;                // Total entropy (as compued via hotQCD EOS)
+    double E_entropy;               // Total energy (assumes trento output is in entropy density and use ideal EOS to get energy density)
+    double re_ecc_p;                // Real part of mom. anisotropy computed with ideal gas EOS
+    double im_ecc_p;                // Imag part of mom. anisotropy computed with ideal gas EOS
+    double re_ecc_p_hotQCD;         // Real part of mom. anisotropy computed with hotQCD EOS
+    double im_ecc_p_hotQCD;         // Imag part of mom. anisotropy computed with hotQCD EOS
+    double re_ecc_p_prime;          // Real part of mom. anisotropy computed with ideal gas EOS - ideal hydro contribution only
+    double im_ecc_p_prime;          // Imag part of mom. anisotropy computed with ideal gas EOS - ideal hydro contribution only
+    double re_ecc_p_prime_hotQCD;   // Real part of mom. anisotropy computed with hotQCD EOS - ideal hydro contribution only
+    double im_ecc_p_prime_hotQCD;   // Imag part of mom. anisotropy computed with hotQCD EOS - ideal hydro contribution only
+    double R[NMAX];                 // <R^n>^{1/n} (n=1,..,NMAX)
+    double eps[NMAX][MMAX+1];       // <eps_{n,m}> (n=1,..,NMAX, m=0,..,MMAX)
+    double psi[NMAX][MMAX+1];       // <psi_{n,m}> (n=1,..,NMAX, m=0,..,MMAX)
+} preequilibrium_event_info;
 
 class PreEquilibriumParameterFile {
 public:
@@ -37,6 +62,26 @@ private:
   PreEquilibriumParameterFile parameter_list_;
   // record preequilibrium start and end proper time [fm/c]
   //real preequilibrium_tau_0_, preequilibrium_tau_max_;
+  int event_counter;
+  std::string output_filename_;
+
+  void WriteToHDF5();
+
+  //Auxiliary functions to output to HDF5
+  preequilibrium_event_info get_ecc(const std::vector<double> &eps,
+                                    const  std::vector<double> &u0,
+                                    const  std::vector<double> &ux,
+                                    const  std::vector<double> &uy,
+                                    const  std::vector<double> &Pi,
+                                    const  std::vector<double> &pixx,
+                                    const  std::vector<double> &piyy,
+                                    const  std::vector<double> &pitautau,
+                                    const  std::vector<double> &pixy,
+                                    const  double &tau,
+                                    const  std::array<int,2> &size, const std::array<double,2> &step);
+  void output_hdf5(std::string filename,
+                   std::vector<preequilibrium_event_info>& evt_vec,
+                   std::vector<double>& entropy_density_distribution);
 
 public:
   PreequilibriumDynamics();
@@ -95,6 +140,21 @@ public:
   std::vector<double> pi23_;
   std::vector<double> pi33_;
   std::vector<double> bulk_Pi_;
+  double tau_hydro_;
+  std::vector<double> rho_b_;
+  std::vector<double> q0_;
+  std::vector<double> q1_;
+  std::vector<double> q2_;
+  std::vector<double> q3_;
+
+  double xmax_fs;
+  double ymax_fs;
+  double etamax_fs;
+  double dx_fs;
+  double dy_fs;
+  double deta_fs;
+  double neta_fs;
+  bool using_ampt = false;
 };
 
 } // end namespace Jetscape

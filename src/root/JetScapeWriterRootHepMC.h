@@ -18,7 +18,7 @@
 
 #include <fstream>
 #include <string>
-
+#include <vector>
 #include "JetScapeWriter.h"
 #include "PartonShower.h"
 
@@ -26,7 +26,7 @@
 #include "HepMC3/ReaderAscii.h"
 #include "HepMC3/WriterRootTree.h"
 #include "HepMC3/Print.h"
-
+#include "HepMC3/Attribute.h"
 // using namespace HepMC;
 using HepMC3::GenEvent;
 using HepMC3::GenVertex;
@@ -46,6 +46,7 @@ public:
   };
   virtual ~JetScapeWriterRootHepMC();
 
+  void SetAttributes(int &nsamples_in, std::vector<int> &nparticles_in);
   void InitTask();
   void ExecuteTask();
 
@@ -70,6 +71,8 @@ private:
   vector<HepMC3::GenVertexPtr> vertices;
   HepMC3::GenVertexPtr hadronizationvertex;
 
+  shared_ptr<HepMC3::IntAttribute> nsamples;
+  shared_ptr<HepMC3::VectorIntAttribute> nparticles;
   /// WriteEvent needs to know whether it should overwrite final partons status to 1
   bool hashadrons=false;
 

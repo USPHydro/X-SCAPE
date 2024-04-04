@@ -20,9 +20,9 @@
 
 # using a commit from the freestream-milne repository that is compatible with X-SCAPE 1.1.1
 folderName="freestream-milne"
-commitHash="eb51fd6ff5a547f08bf817e728794dfce6177db4"
+commitHash="f1657796f259c8a1a2efee2918b4fa62e179f8f7"
 
-git clone https://github.com/chunshen1987/freestream-milne -b time_step_history $folderName
+git clone https://github.com/USPHydro/freestream-milne.git -b $commitHash $folderName
 cd $folderName
 git checkout $commitHash
 

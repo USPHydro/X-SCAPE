@@ -54,6 +54,12 @@ void NullPreDynamics::EvolvePreequilibrium() {
       pi23_.push_back(0.);
       pi33_.push_back(0.);
       bulk_Pi_.push_back(0.);
+      tau_hydro_ = 0.;
+      rho_b_.push_back(0.);
+      q0_.push_back(0.);
+      q1_.push_back(0.)   ;
+      q2_.push_back(0.)   ;
+      q3_.push_back(0.)   ;
     }
     preequilibrium_status_ = DONE;
   }

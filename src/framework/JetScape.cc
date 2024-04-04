@@ -23,13 +23,16 @@
 #include "PreequilibriumDynamics.h"
 #include "JetEnergyLoss.h"
 #include "CausalLiquefier.h"
-
+#include "SoftParticlization.h"
 #include "QueryHistory.h"
 
 #ifdef USE_HEPMC
-#include "JetScapeWriterHepMC.h"
+  #include "JetScapeWriterHepMC.h"
   #ifdef USE_ROOT
-  #include "JetScapeWriterRootHepMC.h"
+    #include "JetScapeWriterRootHepMC.h"
+  #endif
+  #ifdef USE_ROOT
+    #include "JetScapeWriterRootHepMC.h"
   #endif
 #endif
 
@@ -683,6 +686,16 @@ void JetScape::DetermineTaskListFromXML() {
           auto iSSmodule =
               JetScapeModuleFactory::createInstance(childElementName);
           if (iSSmodule) {
+            tinyxml2::XMLElement *issElement =
+                (tinyxml2::XMLElement *)childElement->FirstChildElement();
+            while (issElement) {
+              std::string issElementName = issElement->Name();
+              if( issElementName ==  "Perform_resonance_decays"){
+                bool perform_decays_flag = std::stoi(issElement->GetText()) == 1;
+                std::dynamic_pointer_cast<SoftParticlization>(iSSmodule)->SetPerformDecays(perform_decays_flag);
+              }
+              issElement = issElement->NextSiblingElement();
+            }
             Add(iSSmodule);
             JSINFO << "JetScape::DetermineTaskList() -- SoftParticlization: "
                       "Added iSS to task list.";
@@ -812,7 +825,7 @@ void JetScape::DetermineWritersFromXML() {
   CheckForWriterFromXML("JetScapeWriterHepMC",
                         outputFilenameHepMC.append(".hepmc"));
   CheckForWriterFromXML("JetScapeWriterRootHepMC",
-                        outputFilenameRootHepMC.append("_hepmc.root"));
+                        outputFilenameRootHepMC.append(".root"));
   CheckForWriterFromXML("JetScapeWriterFinalStatePartonsAscii",
                         outputFilenameFinalStatePartonsAscii.append("_final_state_partons.dat"));
   CheckForWriterFromXML("JetScapeWriterFinalStateHadronsAscii",
@@ -860,18 +873,23 @@ void JetScape::CheckForWriterFromXML(const char *writerName,
       Add(writer);
       JSINFO << "JetScape::DetermineTaskList() -- " << writerName << " ("
              << outputFilename.c_str() << ") added to task list.";
+#else
+      JSINFO << "JetScapeWriterHepMC is not enabled. Please, compile with HepMC enabled.";
 #endif
-    }
-    else if (strcmp(writerName, "JetScapeWriterRootHepMC") == 0) {
+    } else if (strcmp(writerName, "JetScapeWriterRootHepMC") == 0) {
 #ifdef USE_HEPMC
-      #ifdef USE_ROOT
+#ifdef USE_ROOT
       VERBOSE(2) << "Manually creating JetScapeWriterRootHepMC (due to multiple "
                     "inheritance)";
       auto writer = std::make_shared<JetScapeWriterRootHepMC>(outputFilename);
       Add(writer);
       JSINFO << "JetScape::DetermineTaskList() -- " << writerName << " ("
              << outputFilename.c_str() << ") added to task list.";
-      #endif
+#else
+      JSINFO << "JetScapeWriterRootHepMC is not enabled. Please, compile with ROOT enabled.";
+#endif
+#else
+      JSINFO << "JetScapeWriterRootHepMC is not enabled. Please, compile with HepMC and ROOT enabled.";
 #endif
     } else {
       VERBOSE(2) << "Writer is NOT created...";

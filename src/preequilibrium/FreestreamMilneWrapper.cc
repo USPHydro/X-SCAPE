@@ -64,6 +64,7 @@ void FreestreamMilneWrapper::InitializePreequilibrium(
   params->TAU0 = tau0;
   params->TAUJ = tauj;
   params->DTAU = taus - tau0;
+  tau_hydro_ = taus;
 }
 
 void FreestreamMilneWrapper::EvolvePreequilibrium() {
@@ -84,7 +85,8 @@ void FreestreamMilneWrapper::EvolvePreequilibrium() {
   }
   // now prepare to send the resulting hydro variables to the hydro module by coping hydro vectors to Preequilibrium base class members
   preequilibrium_tau_max_ = fsmilne_ptr->tau_LandauMatch;
-  fsmilne_ptr->output_to_vectors(e_, P_, utau_, ux_, uy_, ueta_, pi00_, pi01_,
+  fsmilne_ptr->output_to_vectors(tau_hydro_,e_, P_, utau_, ux_, uy_, ueta_, pi00_, pi01_,
                                  pi02_, pi03_, pi11_, pi12_, pi13_, pi22_,
-                                 pi23_, pi33_, bulk_Pi_);
+                                 pi23_, pi33_, bulk_Pi_,rho_b_,q0_,q1_,q2_,q3_);
+  cout << "Hydro matching time: " << tau_hydro_ << endl;
 }

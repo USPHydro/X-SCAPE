@@ -125,6 +125,14 @@ void SmashWrapper::ExecuteTask() {
   modus->reset_event_numbering();
   modus->jetscape_hadrons_ = GatherAfterburnerHadrons();
   // modus->jetscape_hadrons_ = TestHadronList();
+  for (auto &hadron_list : modus->jetscape_hadrons_) {
+    for (auto &hadron : hadron_list) {
+      if (hadron.get()->pstat() == 12) {
+        JSWARN << "Decayed hadron fed to SMASH";
+        exit(1);
+      }
+    }
+  }
   const int n_events = modus->jetscape_hadrons_.size();
   JSINFO << "SMASH: obtained " << n_events << " events from particlization";
   for (unsigned int i = 0; i < n_events; i++) {
