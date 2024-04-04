@@ -31,6 +31,7 @@ namespace Jetscape {
 
 class SoftParticlization : public JetScapeModuleBase {
 private:
+  bool perform_decays;
   bool HydroHyperSurfaceConnected_;
   bool ClearHydroHyperSurfaceConnected_;
 public:

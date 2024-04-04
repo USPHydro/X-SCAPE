@@ -217,14 +217,13 @@ void MpiMusic::InitializeHydroEnergyProfile() {
     z_max = pre_eq_ptr->etamax_fs - dz;
     nz = pre_eq_ptr->neta_fs;
     JSINFO << "AMPT neta=  " << nz;
-
   }
   else{
-  JSINFO << "Using IS module grid size";
-  dx = ini->GetXStep();
-  dz = ini->GetZStep();
-  z_max = ini->GetZMax();
-  nz = ini->GetZSize();
+    JSINFO << "Using IS module grid size";
+    dx = ini->GetXStep();
+    dz = ini->GetZStep();
+    z_max = ini->GetZMax();
+    nz = ini->GetZSize();
   }
   JSINFO << "Initial condition nz = " << nz;
 
@@ -237,13 +236,12 @@ void MpiMusic::InitializeHydroEnergyProfile() {
   } else {
     JSINFO << "Initializing MUSIC from preequilibrium vectors" ;
     music_hydro_ptr->initialize_hydro_from_jetscape_preequilibrium_vectors(
-        tau0,
-        dx, dz, z_max, nz, pre_eq_ptr->e_, pre_eq_ptr->P_,
+        pre_eq_ptr->tau_hydro_, dx, dz, z_max, nz, pre_eq_ptr->e_, pre_eq_ptr->P_,
         pre_eq_ptr->utau_, pre_eq_ptr->ux_, pre_eq_ptr->uy_, pre_eq_ptr->ueta_,
         pre_eq_ptr->pi00_, pre_eq_ptr->pi01_, pre_eq_ptr->pi02_,
         pre_eq_ptr->pi03_, pre_eq_ptr->pi11_, pre_eq_ptr->pi12_,
         pre_eq_ptr->pi13_, pre_eq_ptr->pi22_, pre_eq_ptr->pi23_,
-        pre_eq_ptr->pi33_, pre_eq_ptr->bulk_Pi_, pre_eq_ptr->tau_hydro_,
+        pre_eq_ptr->pi33_, pre_eq_ptr->bulk_Pi_,
         pre_eq_ptr->rho_b_,pre_eq_ptr->q0_,pre_eq_ptr->q1_,pre_eq_ptr->q2_,pre_eq_ptr->q3_);
   }
   JSINFO << "initial density profile dx = " << dx << " fm";
@@ -360,37 +358,6 @@ void MpiMusic::SetHydroGridInfo() {
 
   bulk_info.boost_invariant = music_hydro_ptr->is_boost_invariant();
   JSINFO << "Is boost invariant? : " << music_hydro_ptr->is_boost_invariant();
-}
-
-void MpiMusic::PassHydroSurfaceToFramework() {
-  JSINFO << "Passing hydro surface cells to JETSCAPE ... ";
-  auto number_of_cells = music_hydro_ptr->get_number_of_surface_cells();
-  JSINFO << "total number of fluid cells: " << number_of_cells;
-  SurfaceCell surfaceCell_i;
-  for (int i = 0; i < number_of_cells; i++) {
-    SurfaceCellInfo surface_cell_info;
-    music_hydro_ptr->get_surface_cell_with_index(i, surfaceCell_i);
-    surface_cell_info.tau = surfaceCell_i.xmu[0];
-    surface_cell_info.x = surfaceCell_i.xmu[1];
-    surface_cell_info.y = surfaceCell_i.xmu[2];
-    surface_cell_info.eta = surfaceCell_i.xmu[3];
-    double u[4];
-    for (int j = 0; j < 4; j++) {
-      surface_cell_info.d3sigma_mu[j] = surfaceCell_i.d3sigma_mu[j];
-      surface_cell_info.umu[j] = surfaceCell_i.umu[j];
-    }
-    surface_cell_info.energy_density = surfaceCell_i.energy_density;
-    surface_cell_info.temperature = surfaceCell_i.temperature;
-    surface_cell_info.pressure = surfaceCell_i.pressure;
-    surface_cell_info.mu_B = surfaceCell_i.mu_B;
-    surface_cell_info.mu_Q = surfaceCell_i.mu_Q;
-    surface_cell_info.mu_S = surfaceCell_i.mu_S;
-    for (int j = 0; j < 10; j++) {
-      surface_cell_info.pi[j] = surfaceCell_i.shear_pi[j];
-    }
-    surface_cell_info.bulk_Pi = surfaceCell_i.bulk_Pi;
-    StoreSurfaceCell(surface_cell_info);
-  }
 }
 
 void MpiMusic::PassHydroSurfaceToFramework() {

@@ -15,11 +15,15 @@
 
 folderName="music"
 # commitHash="52b0454b0a07a76f26c8138245c0b3c54d00af65" # for xscape 1.1
-commitHash="6868c8982a52d4439fc5a5c804c5b2bb382c4d58" # for xscape 1.1.1
+commitHash="3b8d390d8c8cedaf8aaa687586c003af7ac4f22a" # for xscape 1.1.1
 
-# download the code package
+# download the code package at a specific commit
 rm -fr $folderName
-git clone --depth=1 https://github.com/USPHydro/MUSIC.git -b $commitHash $folderName
+git init $folderName
+cd $folderName
+git remote add origin https://github.com/USPHydro/MUSIC.git
+git fetch --depth=1 origin $commitHash
+git checkout $commitHash
 
 ### ALTERNATIVE VERSION
 ### Download a zipped snapshot

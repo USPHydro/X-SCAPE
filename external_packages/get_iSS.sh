@@ -21,5 +21,9 @@ folderName="iSS"
 commitHash="2471dcc0e74c4a2d86c08ae82ad4304643b30439"
 
 rm -fr iSS
-git clone https://github.com/USPHydro/iSS.git --depth=1 -b $commitHash $folderName
+git init $folderName
+cd $folderName
+git remote add origin https://github.com/USPHydro/iSS.git
+git fetch --depth=1 origin $commitHash
+git checkout $commitHash
 rm -fr $folderName/.git

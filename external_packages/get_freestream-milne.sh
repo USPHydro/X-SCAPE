@@ -20,10 +20,13 @@
 
 # using a commit from the freestream-milne repository that is compatible with X-SCAPE 1.1.1
 folderName="freestream-milne"
-commitHash="f1657796f259c8a1a2efee2918b4fa62e179f8f7"
+commitHash="8ac664b5137b93c439b4bd8f5291de614d16cd5d"
 
-git clone https://github.com/USPHydro/freestream-milne.git -b $commitHash $folderName
+# download the freestream-milne code at a specific commit
+git init $folderName
 cd $folderName
+git remote add origin https://github.com/USPHydro/freestream-milne.git
+git fetch --depth=1 origin $commitHash
 git checkout $commitHash
 
 #cd freestream-milne
