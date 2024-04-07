@@ -15,7 +15,7 @@
 
 folderName="music"
 # commitHash="52b0454b0a07a76f26c8138245c0b3c54d00af65" # for xscape 1.1
-commitHash="3b8d390d8c8cedaf8aaa687586c003af7ac4f22a" # for xscape 1.1.1
+commitHash="b227d495a76067b1f1c0d1088fd0a71db4aadf0b" # for xscape 1.1.1
 
 # download the code package at a specific commit
 rm -fr $folderName
