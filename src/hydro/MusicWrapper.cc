@@ -143,15 +143,15 @@ void MpiMusic::InitializeHydro(Parameter parameter_list) {
               {"Hydro", "MUSIC", "bulk_viscosity_3_max"});
         music_hydro_ptr->set_parameter("bulk_viscosity_3_max", bulk_max);
         double bulk_peakT = GetXMLElementDouble(
-              {"Hydro", "MUSIC", "zeta_over_s_T_peak_in_GeV"});
+              {"Hydro", "MUSIC", "bulk_viscosity_3_T_peak_in_GeV"});
         music_hydro_ptr->set_parameter("bulk_viscosity_3_T_peak_in_GeV",
                                        bulk_peakT);
         double bulk_width = GetXMLElementDouble(
-              {"Hydro", "MUSIC", "zeta_over_s_width_in_GeV"});
+              {"Hydro", "MUSIC", "bulk_viscosity_3_width_in_GeV"});
         music_hydro_ptr->set_parameter("bulk_viscosity_3_width_in_GeV",
                                        bulk_width);
         double bulk_asy = GetXMLElementDouble(
-              {"Hydro", "MUSIC", "zeta_over_s_lambda_asymm"});
+              {"Hydro", "MUSIC", "bulk_viscosity_3_lambda_asymm"});
         music_hydro_ptr->set_parameter("bulk_viscosity_3_lambda_asymm",
                                        bulk_asy);
     }
