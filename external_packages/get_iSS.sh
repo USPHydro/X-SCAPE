@@ -18,7 +18,7 @@
 
 # using a commit from the iSS repository that is compatible with X-SCAPE 1.1.1
 folderName="iSS"
-commitHash="2471dcc0e74c4a2d86c08ae82ad4304643b30439"
+commitHash="37ce2ae5c6c5a1d7c4d762e42fabab5bc450cbe8"
 
 rm -fr iSS
 git init $folderName

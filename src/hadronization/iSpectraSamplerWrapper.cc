@@ -36,36 +36,8 @@ iSpectraSamplerWrapper::iSpectraSamplerWrapper() {
 
 iSpectraSamplerWrapper::~iSpectraSamplerWrapper() {}
 
-void iSpectraSamplerWrapper::InitTask() {
-
-  JSINFO << "Initialize a particle sampler (iSS)";
-
-  std::string input_file =
-      GetXMLElementText({"SoftParticlization", "iSS", "iSS_input_file"});
-  std::string table_path =
-      GetXMLElementText({"SoftParticlization", "iSS", "iSS_table_path"});
-  std::string particle_table_path =
-      GetXMLElementText({"SoftParticlization", "iSS",
-                         "iSS_particle_table_path"});
-  std::string working_path =
-      GetXMLElementText({"SoftParticlization", "iSS", "iSS_working_path"});
-  int hydro_mode =
-      GetXMLElementInt({"SoftParticlization", "iSS", "hydro_mode"});
-  int number_of_repeated_sampling = GetXMLElementInt(
-      {"SoftParticlization", "iSS", "number_of_repeated_sampling"});
-  int afterburner_type = (
-      GetXMLElementInt({"SoftParticlization", "iSS", "afterburner_type"}));
-
-  if (!boost_invariance) {
-    hydro_mode = 2;
-  }
-
-  iSpectraSampler_ptr_ = std::unique_ptr<iSS>(
-          new iSS(working_path, table_path, particle_table_path, input_file));
-  iSpectraSampler_ptr_->paraRdr_ptr->readFromFile(input_file);
-
-  // overwrite some parameters
-  int echoLevel = GetXMLElementInt({"vlevel"});
+void iSpectraSamplerWrapper::set_iSpectraSampler_ptr_parameters(){
+  echoLevel = GetXMLElementInt({"vlevel"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("JSechoLevel", echoLevel);
 
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("hydro_mode", hydro_mode);
@@ -73,62 +45,100 @@ void iSpectraSamplerWrapper::InitTask() {
     JSINFO << "iSS decays enabled. Overwriting afterburner_type to PDG Decays.";
     iSpectraSampler_ptr_->paraRdr_ptr->setVal("perform_decays", 1);
     iSpectraSampler_ptr_->paraRdr_ptr->setVal("afterburner_type", 0);
+    afterburner_type = 0;
   } else {
     iSpectraSampler_ptr_->paraRdr_ptr->setVal("perform_decays", 0);
     iSpectraSampler_ptr_->paraRdr_ptr->setVal("afterburner_type", afterburner_type);
   }
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("output_samples_into_files", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_OSCAR_format", 1);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_gzip_format", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_binary_format", 0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("store_samples_in_memory", 1);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("output_samples_into_files", output_samples_into_files);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_OSCAR_format", use_OSCAR_format);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_gzip_format", use_gzip_format);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("use_binary_format", use_binary_format);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("store_samples_in_memory", store_samples_in_memory);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("number_of_repeated_sampling",
                                             number_of_repeated_sampling);
-
-  // set default parameters
-  int turn_on_shear =
-      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_shear"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_shear", turn_on_shear);
-  int turn_on_bulk =
-      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_bulk"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_bulk", turn_on_bulk);
-
-  int turn_on_rhob =
-      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_rhob"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_rhob", turn_on_rhob);
-  int turn_on_diff =
-      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_diff"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("turn_on_diff", turn_on_diff);
-  int include_deltaf_shear = 
-      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_shear"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_shear", include_deltaf_shear);
-  int include_deltaf_bulk = 
-      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_bulk"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_bulk", include_deltaf_bulk);
-  int bulk_deltaf_kind = 
-      GetXMLElementInt({"SoftParticlization", "iSS", "bulk_deltaf_kind"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("bulk_deltaf_kind", bulk_deltaf_kind);
-
-  int include_deltaf_diffusion = 
-      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_diffusion"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_deltaf_diffusion", include_deltaf_diffusion);
-
-  int restrict_deltaf = 
-      GetXMLElementInt({"SoftParticlization", "iSS", "restrict_deltaf"});
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("restrict_deltaf", restrict_deltaf);
-
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("deltaf_max_ratio", 1.0);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("f0_is_not_small", 1);
-
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("calculate_vn", 0);
-  int MC_sampling = 
-      GetXMLElementInt({"SoftParticlization", "iSS", "MC_sampling"});
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("deltaf_max_ratio", deltaf_max_ratio);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("f0_is_not_small", f0_is_not_small);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("calculate_vn", calculate_vn);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal("MC_sampling", MC_sampling);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("RegVisYield", 1);
-  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_spectators", 0);
-
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("RegVisYield", RegVisYield);
+  iSpectraSampler_ptr_->paraRdr_ptr->setVal("include_spectators", include_spectators);
   iSpectraSampler_ptr_->paraRdr_ptr->setVal(
-      "sample_upto_desired_particle_number", 0);
+      "sample_upto_desired_particle_number", sample_upto_desired_particle_number);
+}
+
+void iSpectraSamplerWrapper::InitTask() {
+
+  JSINFO << "Initialize a particle sampler (iSS)";
+
+  input_file =
+      GetXMLElementText({"SoftParticlization", "iSS", "iSS_input_file"});
+  table_path =
+      GetXMLElementText({"SoftParticlization", "iSS", "iSS_table_path"});
+  particle_table_path =
+      GetXMLElementText({"SoftParticlization", "iSS",
+                         "iSS_particle_table_path"});
+  working_path =
+      GetXMLElementText({"SoftParticlization", "iSS", "iSS_working_path"});
+
+  iSpectraSampler_ptr_ = std::unique_ptr<iSS>(
+          new iSS(working_path, table_path, particle_table_path, input_file));
+  iSpectraSampler_ptr_->paraRdr_ptr->readFromFile(input_file);
+
+  //Read XML parameters
+  hydro_mode =
+      GetXMLElementInt({"SoftParticlization", "iSS", "hydro_mode"});
+  number_of_repeated_sampling = GetXMLElementInt(
+      {"SoftParticlization", "iSS", "number_of_repeated_sampling"});
+  afterburner_type = (
+      GetXMLElementInt({"SoftParticlization", "iSS", "afterburner_type"}));
+  turn_on_shear =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_shear"});
+  turn_on_bulk =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_bulk"});
+  turn_on_rhob =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_rhob"});
+  turn_on_diff =
+      GetXMLElementInt({"SoftParticlization", "iSS", "turn_on_diff"});
+  include_deltaf_shear =
+      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_shear"});
+  include_deltaf_bulk =
+      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_bulk"});
+  bulk_deltaf_kind =
+      GetXMLElementInt({"SoftParticlization", "iSS", "bulk_deltaf_kind"});
+  include_deltaf_diffusion =
+      GetXMLElementInt({"SoftParticlization", "iSS", "include_deltaf_diffusion"});
+  restrict_deltaf =
+      GetXMLElementInt({"SoftParticlization", "iSS", "restrict_deltaf"});
+  MC_sampling =
+      GetXMLElementInt({"SoftParticlization", "iSS", "MC_sampling"});
+
+  // overwrite some parameters
+  if (!boost_invariance) {
+    hydro_mode = 2;
+  }
+  output_samples_into_files = 0;
+  use_OSCAR_format = 1;
+  use_gzip_format = 0;
+  use_binary_format = 0;
+  store_samples_in_memory = 1;
+  deltaf_max_ratio = 1.0;
+  f0_is_not_small = 1;
+  calculate_vn = 0;
+  RegVisYield = 1;
+  include_spectators = 0;
+  sample_upto_desired_particle_number = 0;
+
+  set_iSpectraSampler_ptr_parameters();
   iSpectraSampler_ptr_->paraRdr_ptr->echo();
 }
 
